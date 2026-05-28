@@ -1,0 +1,780 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
+
+  /* Suppress Joomla page elements */
+  .noodle-factory-widget-wrapper,
+  #__deeda__Container,
+  .footer-top,
+  .footer-middle,
+  .footer-bottom {
+    display: none !important;
+  }
+
+  :root {
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --bg: #ffffff;
+    --primary: #bb0013;
+    --primary-soft: #f1f5f9;
+    --text: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --card: #ffffff;
+    --radius: 14px;
+    --shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  .calculator {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 22px 16px 40px;
+    font-family: "Public Sans", sans-serif;
+    color: #0f172a;
+    line-height: 1.6;
+  }
+
+  .calculator[hidden] {
+    display: none !important;
+  }
+
+  .calc-loading {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 22px 16px 40px;
+    font-family: "Public Sans", sans-serif;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .calc-intro {
+    margin: 0 0 20px;
+    font-size: 15px;
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 2px;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .tabs {
+      -webkit-mask-image: linear-gradient(to right, black calc(100% - 48px), transparent 100%);
+      mask-image: linear-gradient(to right, black calc(100% - 48px), transparent 100%);
+    }
+  }
+
+  .tab-btn {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    padding: 10px 14px 12px;
+    min-height: 44px;
+    min-width: max-content;
+    border-bottom: 3px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: "Public Sans", sans-serif;
+    cursor: pointer;
+    transition: color 0.2s var(--ease-out), border-color 0.2s var(--ease-out);
+  }
+
+  .tab-btn:active {
+    transform: scale(0.97);
+  }
+
+  .tab-btn:focus-visible {
+    outline: 2px solid #bb0013;
+    outline-offset: 2px;
+    border-radius: inherit;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    vertical-align: middle;
+    font-size: 22px;
+  }
+
+  .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+
+  .tab-btn.active .material-symbols-outlined {
+    font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+  }
+
+  .layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .sidebar {
+    width: 100%;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .programmes-label {
+    color: #64748b;
+    font-size: 12px;
+    letter-spacing: 1.2px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .programme-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .programme-row {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: transparent;
+    color: #475569;
+    cursor: pointer;
+    text-align: left;
+    padding: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    transition: background 150ms var(--ease-out), color 150ms var(--ease-out), border-color 150ms var(--ease-out), transform 150ms var(--ease-out);
+  }
+
+  .programme-row:has(input:focus-visible) {
+    outline: 2px solid #bb0013;
+    outline-offset: 2px;
+  }
+
+  .programme-row:active:not(.locked) {
+    transform: scale(0.98);
+  }
+
+  .programme-row.checked {
+    background: #ffffff;
+    color: var(--primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border-color: #e2e8f0;
+  }
+
+  .programme-row.locked {
+    cursor: not-allowed;
+    opacity: 0.92;
+  }
+
+  .programme-row input {
+    position: static;
+    opacity: 1;
+    pointer-events: auto;
+    margin-top: 2px;
+    flex: 0 0 auto;
+    accent-color: var(--primary);
+  }
+
+  .programme-copy {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .programme-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+
+  .programme-row.checked .programme-main {
+    font-weight: 700;
+  }
+
+  .programme-main .material-symbols-outlined {
+    font-size: 20px;
+    color: inherit;
+  }
+
+  .programme-sub {
+    margin-left: 30px;
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+
+  .programme-row.checked .programme-sub {
+    color: #64748b;
+  }
+
+  .main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .panel {
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+    padding: 18px;
+  }
+
+  .donation-title {
+    margin: 0 0 12px;
+    font-size: 14px;
+    color: #0f172a;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+  }
+
+  .pill-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .pill-btn {
+    border: 1px solid #f1f5f9;
+    background: #ffffff;
+    color: #475569;
+    border-radius: 999px;
+    padding: 12px 14px;
+    min-height: 44px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: "Public Sans", sans-serif;
+    cursor: pointer;
+    transition: border-color 150ms var(--ease-out), color 150ms var(--ease-out), background 150ms var(--ease-out), transform 100ms var(--ease-out);
+  }
+
+  .pill-btn:active {
+    transform: scale(0.97);
+  }
+
+  .pill-btn:focus-visible {
+    outline: 2px solid #bb0013;
+    outline-offset: 2px;
+  }
+
+  .pill-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .pill-btn.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #ffffff;
+  }
+
+  .custom-wrap {
+    margin-top: 12px;
+    display: none;
+  }
+
+  .custom-wrap.active {
+    display: block;
+  }
+
+  .custom-input {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid #f1f5f9;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 16px;
+    font-family: "Public Sans", sans-serif;
+    outline: none;
+    color: #0f172a;
+  }
+
+  .custom-input:focus-visible {
+    border-color: var(--primary);
+    outline: 2px solid #bb0013;
+    outline-offset: 2px;
+  }
+
+  .impact-wrap {
+    margin-top: 18px;
+  }
+
+  .impact-label {
+    font-size: 12px;
+    letter-spacing: 1.3px;
+    color: #64748b;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+
+  .impact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .impact-card {
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 0 14px 14px;
+    overflow: hidden;
+    animation: calcCardIn 220ms var(--ease-out) both;
+  }
+
+  .impact-card:nth-child(1) { animation-delay: 0ms; }
+  .impact-card:nth-child(2) { animation-delay: 50ms; }
+  .impact-card:nth-child(3) { animation-delay: 100ms; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .programme-row:hover:not(.checked):not(.locked) {
+      transform: translateX(4px);
+      background: #ffffff;
+      border-color: #e2e8f0;
+    }
+  }
+
+  @keyframes calcCardIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .impact-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 0 -14px 10px;
+    padding: 10px 14px;
+    background: #bb0013;
+    color: #ffffff;
+  }
+
+  .impact-name {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 800;
+    color: #ffffff;
+  }
+
+  .impact-alloc {
+    font-size: 14px;
+    color: #bb0013;
+    font-weight: 700;
+    align-self: center;
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 999px;
+    padding: 4px 10px;
+  }
+
+  .impact-stat {
+    margin: 0 0 6px;
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.4;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .impact-n {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    display: inline;
+  }
+
+  .impact-copy {
+    margin: 0;
+    color: #475569;
+    font-style: italic;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .impact-alt {
+    margin: 14px 0 0;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+  }
+
+  .impact-alt-or {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 6px;
+  }
+
+  .impact-alt .impact-stat {
+    margin: 0 0 4px;
+  }
+
+  .impact-alt .impact-copy {
+    margin: 0;
+  }
+
+  .impact-ref {
+    margin: 10px 0 0;
+    padding: 8px 10px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #475569;
+  }
+
+  .placeholder {
+    background: #ffffff;
+    border: 1px dashed #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    color: #64748b;
+    font-size: 14px;
+  }
+
+  @media (min-width: 768px) {
+    .calculator {
+      padding: 28px 24px 48px;
+    }
+
+    .layout {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 32px;
+    }
+
+    .sidebar {
+      width: 320px;
+      position: sticky;
+      top: 18px;
+    }
+
+    .pill-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+
+<div class="calc-loading" id="calcLoading" role="status" aria-live="polite">Loading calculator...</div>
+
+<div class="calculator" id="calculatorRoot" hidden aria-hidden="true">
+  <p class="calc-intro">Select a beneficiary group, choose your programmes, and see exactly how many lives your donation will impact.</p>
+  <div class="tabs" id="groupTabs" aria-label="Beneficiary groups"></div>
+
+  <div class="layout">
+    <aside class="sidebar" aria-label="Programmes">
+      <div class="programmes-label">PROGRAMMES</div>
+      <div class="programme-list" id="programmeList"></div>
+    </aside>
+
+    <main class="main">
+      <section class="panel" aria-label="Donation amount">
+        <h2 class="donation-title">Choose Donation Amount</h2>
+        <div class="pill-grid" id="donationPills"></div>
+        <div class="custom-wrap" id="customWrap">
+          <input
+            class="custom-input"
+            id="customInput"
+            inputmode="numeric"
+            placeholder="Enter custom amount, e.g. 75000"
+            aria-label="Custom donation amount"
+          />
+        </div>
+      </section>
+
+      <section class="impact-wrap" aria-live="polite">
+        <div class="impact-label">YOUR IMPACT</div>
+        <div class="impact-list" id="impactList"></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+var CALC_CONFIG = {
+  groups: [
+    { id: "seniors", label: "Seniors", icon: "elderly", programmes: ["home", "mct", "elderaid"] },
+    { id: "children", label: "Children & Youth", icon: "child_care", programmes: ["younghearts"] },
+    { id: "pwd", label: "Persons with Disabilities", icon: "accessible", programmes: ["rchd"] },
+    { id: "families", label: "Families", icon: "family_restroom", programmes: ["meals"] },
+    { id: "migrant", label: "Migrant Workers", icon: "groups", programmes: ["chow"] }
+  ],
+  donationOptions: [50000, 100000, 250000, 500000, "custom"],
+  programmes: {
+    home: {
+      key: "Home Monitoring & Eldercare (HoME+)",
+      icon: "home_health",
+      cost: 160,
+      subLabel: "",
+      noun: "seniors",
+      stat: (n) => '<strong class="impact-n">' + n + '</strong> seniors supported for 1 year',
+      copy: "A [amount] donation will support [N] seniors with HoME+ for 1 year, enabling them to age safely at home with peace of mind.",
+      statFn: (allocation) => {
+        const totalMonths = Math.floor(allocation / 160);
+        if (totalMonths === 0) return '<strong class="impact-n">0</strong> seniors supported';
+        const personYears = totalMonths / 12;
+        if (personYears < 1) {
+          const label = totalMonths === 1 ? "month" : "months";
+          return '<strong class="impact-n">1</strong> senior supported for ' + totalMonths + ' ' + label;
+        }
+        if (personYears < 2) {
+          const rem = totalMonths % 12;
+          const label = rem === 0 ? "1 year" : '1 year ' + rem + ' ' + (rem === 1 ? "month" : "months");
+          return '<strong class="impact-n">1</strong> senior supported for ' + label;
+        }
+        const seniors = Math.floor(personYears);
+        return '<strong class="impact-n">' + seniors + '</strong> seniors supported for 1 year';
+      },
+      baseNote: "$160 supports 1 senior for 1 month · $1,920 for 1 year",
+      copyFn: (allocation, amountText) => {
+        const totalMonths = Math.floor(allocation / 160);
+        if (totalMonths === 0) return 'A ' + amountText + ' donation will support seniors with HoME+, enabling them to age safely at home with peace of mind.';
+        const personYears = totalMonths / 12;
+        let duration, noun;
+        if (personYears < 1) {
+          const label = totalMonths === 1 ? "month" : "months";
+          duration = totalMonths + ' ' + label;
+          noun = "1 senior";
+        } else if (personYears < 2) {
+          const rem = totalMonths % 12;
+          duration = rem === 0 ? "1 year" : '1 year ' + rem + ' ' + (rem === 1 ? "month" : "months");
+          noun = "1 senior";
+        } else {
+          const seniors = Math.floor(personYears);
+          duration = "1 year";
+          noun = seniors + ' seniors';
+        }
+        return 'A ' + amountText + ' donation will support ' + noun + ' with HoME+ for ' + duration + ', enabling them to age safely at home with peace of mind.';
+      }
+    },
+    mct: {
+      key: "Medical Chaperone & Transport (MCT)",
+      icon: "directions_car",
+      cost: 80,
+      subLabel: "",
+      noun: "trips",
+      stat: (n) => '<strong class="impact-n">' + n + '</strong> trips funded',
+      copy: "A [amount] donation will fund [N] trips to medical appointments for seniors, so they never have to go alone.",
+      baseNote: "$80 funds 1 medical transport trip",
+      statFn: (allocation) => {
+        const trips = Math.floor(allocation / 80);
+        if (trips === 0) return '<strong class="impact-n">0</strong> trips funded';
+        return '<strong class="impact-n">' + formatNumber(trips) + '</strong> trips funded';
+      },
+      copyFn: (allocation, amountText) => {
+        const trips = Math.floor(allocation / 80);
+        const nText = formatNumber(trips);
+        return 'A ' + amountText + ' donation will fund ' + nText + ' trips to medical appointments for seniors, so they never have to go alone.';
+      },
+      extraFn: (allocation) => {
+        if (allocation < 230000) return "";
+        return '<div class="impact-alt"><div class="impact-alt-or">or</div><p class="impact-stat"><strong class="impact-n">1</strong> transport vehicle sponsored</p><p class="impact-copy">You may also choose to fund a transport vehicle. Reach out to us to explore this option.</p></div>';
+      }
+    },
+    elderaid: {
+      key: "ElderAid",
+      icon: "payments",
+      cost: 400,
+      subLabel: "",
+      noun: "seniors",
+      stat: (n) => '<strong class="impact-n">' + n + '</strong> seniors supported for 1 year',
+      copy: "A [amount] donation will support [N] seniors with one year of Eldercare services offering companionship, wellbeing checks, digital skills support, and opportunities to participate in social and wellness activities.",
+      baseNote: "$400 supports 1 senior for 1 year"
+    },
+    younghearts: {
+      key: "Young Hearts",
+      icon: "child_care",
+      cost: 6000,
+      subLabel: "",
+      noun: "children",
+      stat: (n) => '<strong class="impact-n">' + n + '</strong> children supported for 1 year',
+      copy: "A [amount] donation will support [N] children with Young Hearts for 1 year, nurturing their education, growth and resilience.",
+      baseNote: "$500 supports 1 child for 1 month · $6,000 for 1 year",
+      statFn: (allocation) => {
+        const MONTHLY = 500;
+        const totalMonths = Math.floor(allocation / MONTHLY);
+        if (totalMonths === 0) return '<strong class="impact-n">0</strong> children supported';
+        const personYears = totalMonths / 12;
+        if (personYears < 1) {
+          const label = totalMonths === 1 ? "month" : "months";
+          return '<strong class="impact-n">1</strong> child supported for ' + totalMonths + ' ' + label;
+        }
+        if (personYears < 2) {
+          const rem = totalMonths % 12;
+          const label = rem === 0 ? "1 year" : '1 year ' + rem + ' ' + (rem === 1 ? "month" : "months");
+          return '<strong class="impact-n">1</strong> child supported for ' + label;
+        }
+        const children = Math.floor(personYears);
+        return '<strong class="impact-n">' + children + '</strong> children supported for 1 year';
+      },
+      copyFn: (allocation, amountText) => {
+        const MONTHLY = 500;
+        const totalMonths = Math.floor(allocation / MONTHLY);
+        if (totalMonths === 0) return 'A ' + amountText + ' donation will support children with Young Hearts, nurturing their education, growth and resilience.';
+        const personYears = totalMonths / 12;
+        let duration, noun;
+        if (personYears < 1) {
+          const label = totalMonths === 1 ? "month" : "months";
+          duration = totalMonths + ' ' + label;
+          noun = "1 child";
+        } else if (personYears < 2) {
+          const rem = totalMonths % 12;
+          duration = rem === 0 ? "1 year" : '1 year ' + rem + ' ' + (rem === 1 ? "month" : "months");
+          noun = "1 child";
+        } else {
+          const children = Math.floor(personYears);
+          duration = "1 year";
+          noun = children + ' children';
+        }
+        return 'A ' + amountText + ' donation will support ' + noun + ' with Young Hearts for ' + duration + ', nurturing their education, growth and resilience.';
+      }
+    },
+    rchd: {
+      key: "Red Cross Home for the Disabled & Day Activity Centre",
+      icon: "accessible_forward",
+      cost: 8000,
+      subLabel: "",
+      noun: "persons",
+      stat: (n) => '<strong class="impact-n">' + n + '</strong> persons supported for 1 year',
+      copy: "A [amount] donation will support [N] persons with disabilities through RCHD & DAC for 1 year, helping them live with dignity and independence.",
+      baseNote: "$667 supports 1 resident for 1 month · $8,000 for 1 year",
+      statFn: (allocation) => {
+        const totalMonths = Math.floor(allocation * 12 / 8000);
+        if (totalMonths === 0) return '<strong class="impact-n">0</strong> residents supported';
+        const personYears = totalMonths / 12;
+        if (personYears < 1) {
+          const label = totalMonths === 1 ? "month" : "months";
+          return '<strong class="impact-n">1</strong> resident supported for ' + totalMonths + ' ' + label;
+        }
+        if (personYears < 2) {
+          const rem = totalMonths % 12;
+          const label = rem === 0 ? "1 year" : '1 year ' + rem + ' ' + (rem === 1 ? "month" : "months");
+          return '<strong class="impact-n">1</strong> resident supported for ' + label;
+        }
+        const residents = Math.floor(personYears);
+        return '<strong class="impact-n">' + residents + '</strong> residents supported for 1 year';
+      },
+      copyFn: (allocation, amountText) => {
+        const totalMonths = Math.floor(allocation * 12 / 8000);
+        if (totalMonths === 0) return 'A ' + amountText + ' donation will support persons with disabilities through RCHD & DAC, helping them live with dignity and independence.';
+        const personYears = totalMonths / 12;
+        let duration, noun;
+        if (personYears < 1) {
+          const label = totalMonths === 1 ? "month" : "months";
+          duration = totalMonths + ' ' + label;
+          noun = "1 resident";
+        } else if (personYears < 2) {
+          const rem = totalMonths % 12;
+          duration = rem === 0 ? "1 year" : '1 year ' + rem + ' ' + (rem === 1 ? "month" : "months");
+          noun = "1 resident";
+        } else {
+          const residents = Math.floor(personYears);
+          duration = "1 year";
+          noun = residents + ' residents';
+        }
+        return 'A ' + amountText + ' donation will support ' + noun + ' with disabilities through RCHD & DAC for ' + duration + ', helping them live with dignity and independence.';
+      }
+    },
+    meals: {
+      key: "Meals with Love & Steady Steps",
+      icon: "soup_kitchen",
+      cost: 600,
+      subLabel: "",
+      noun: "families",
+      stat: (n) => '<strong class="impact-n">' + n + '</strong> families supported for 1 month',
+      copy: "A [amount] donation will support [N] families for one month, providing $500 in financial assistance and $100 in grocery vouchers per family, contributing to a longer-term approach to building financial resilience.",
+      baseNote: "$600 supports 1 family for 1 month"
+    },
+    chow: {
+      key: "Community Health outreach for Wellness (CHoW)",
+      icon: "health_and_safety",
+      cost: 3,
+      subLabel: "",
+      noun: "migrant workers",
+      stat: (n) => '<strong class="impact-n">' + n + '</strong> workers reached for 1 year',
+      copy: "A [amount] donation will reach [N] migrant workers through CHOW community health outreach for 1 year, keeping them healthy and connected.",
+      baseNote: "$500 reaches 185 migrant workers annually",
+      statFn: (allocation) => {
+        const workers = Math.floor(allocation * 185 / 500);
+        return '<strong class="impact-n">' + formatNumber(workers) + '</strong> migrant workers reached annually';
+      },
+      copyFn: (allocation, amountText) => {
+        const workers = Math.floor(allocation * 185 / 500);
+        const nText = formatNumber(workers);
+        return 'A ' + amountText + ' donation will reach ' + nText + ' migrant workers through CHOW community health outreach for 1 year, keeping them healthy and connected.';
+      }
+    }
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/gh/jake-src/corporate-cal@main/calc-app.js" defer></script>
+<script>
+setTimeout(function() {
+  var r = document.getElementById('calculatorRoot');
+  var l = document.getElementById('calcLoading');
+  if (r && r.hidden) {
+    r.hidden = false;
+    r.removeAttribute('aria-hidden');
+    if (l) l.hidden = true;
+  }
+}, 8000);
+</script>
+
+<div class="row pt-4 pb-4">
+  <div class="col-md-8">
+    <ul class="mod-menu mod-list nav terms bottom-copy">
+      <li class="nav-item item-119"><a href="terms-of-use.html">Terms of Use</a></li>
+      <li class="nav-item item-121"><a href="data-protection-and-privacy-policy.html">Data Protection and Privacy Policy</a></li>
+      <li class="nav-item item-243"><a href="whistle-blower-policy.html">Whistle Blower Policy</a></li>
+      <li class="nav-item item-122"><a href="sitemap.html?view=html&amp;id=1">Sitemap</a></li>
+    </ul>
+  </div>
+  <div class="col-md-4 text-right bottom-copy">
+    <p>©2026 BY SINGAPORE RED CROSS SOCIETY</p>
+  </div>
+</div>
