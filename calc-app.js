@@ -3,6 +3,15 @@
     let isRevealed = false;
     let inited = false;
 
+    // Defense-in-depth HTML escaper for static-config data interpolated into innerHTML.
+    // statFn / copyFn / extraFn return HTML by design (trust = repo push access) — not escaped.
+    function escapeHtml(s) {
+      if (s == null) return '';
+      return String(s).replace(/[&<>"']/g, function(c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
     function revealCalculator() {
       if (isRevealed) return;
       const calculatorRoot = document.getElementById("calculatorRoot");
@@ -73,9 +82,9 @@
         .map((group) => {
           const active = group.id === state.activeGroup;
           return `
-            <button class="tab-btn ${active ? "active" : ""}" data-group="${group.id}" type="button">
-              <span class="material-symbols-outlined">${group.icon}</span>
-              <span>${group.label}</span>
+            <button class="tab-btn ${active ? "active" : ""}" data-group="${escapeHtml(group.id)}" type="button">
+              <span class="material-symbols-outlined">${escapeHtml(group.icon)}</span>
+              <span>${escapeHtml(group.label)}</span>
             </button>
           `;
         })
@@ -93,13 +102,13 @@
           const checked = selected.has(id);
           return `
             <label class="programme-row ${checked ? "checked" : ""} ${locked ? "locked" : ""}">
-              <input type="checkbox" data-programme="${id}" ${checked ? "checked" : ""} ${locked ? "disabled" : ""} />
+              <input type="checkbox" data-programme="${escapeHtml(id)}" ${checked ? "checked" : ""} ${locked ? "disabled" : ""} />
               <div class="programme-copy">
                 <div class="programme-main">
-                  <span class="material-symbols-outlined">${data.icon}</span>
-                  <span>${data.key}</span>
+                  <span class="material-symbols-outlined">${escapeHtml(data.icon)}</span>
+                  <span>${escapeHtml(data.key)}</span>
                 </div>
-                <div class="programme-sub">${data.subLabel}</div>
+                <div class="programme-sub">${escapeHtml(data.subLabel)}</div>
               </div>
             </label>
           `;
@@ -113,7 +122,7 @@
           const isCustom = option === "custom";
           const active = isCustom ? state.isCustom : !state.isCustom && state.selectedDonation === option;
           const label = isCustom ? "Custom" : formatCurrency(option);
-          return `<button type="button" class="pill-btn ${active ? "active" : ""}" data-value="${option}">${label}</button>`;
+          return `<button type="button" class="pill-btn ${active ? "active" : ""}" data-value="${escapeHtml(option)}">${escapeHtml(label)}</button>`;
         })
         .join("");
 
@@ -144,12 +153,12 @@
           return `
             <article class="impact-card">
               <div class="impact-top">
-                <h3 class="impact-name">${programme.key}</h3>
+                <h3 class="impact-name">${escapeHtml(programme.key)}</h3>
                 <div class="impact-alloc">${amountText} allocated</div>
               </div>
               <p class="impact-stat">${statHtml}</p>
               <p class="impact-copy">${sentence}</p>
-              ${programme.baseNote ? '<p class="impact-ref">' + programme.baseNote + '</p>' : ''}
+              ${programme.baseNote ? '<p class="impact-ref">' + escapeHtml(programme.baseNote) + '</p>' : ''}
               ${programme.extraFn ? programme.extraFn(allocation) : ''}
             </article>
           `;
